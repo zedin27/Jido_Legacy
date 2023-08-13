@@ -46,14 +46,15 @@ def jiddo_legacy():
 				title_start = content_title_article.find('title="') + len('title="')
 				title_end = content_title_article.find('">', title_start)
 				title = content_title_article[title_start:title_end]
+				title = title.replace('\r', '').strip()
 				titles.append(title)
 			else:
 				print("End tag not found")
 		else:
 			print("Title element was not found")
 
-	for i, title_name in enumerate(titles):
-		print(f"Title {i}: {title_name}")
+	for i, title_name in enumerate(titles): #NOTE: some titles just doesn't print at all (e.g. title 4)
+		print(f"Title {i+1}: {title_name}")
 	print(titles)
 
 jiddo_legacy()
