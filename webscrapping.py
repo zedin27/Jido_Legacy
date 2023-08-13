@@ -53,7 +53,7 @@ def jiddo_legacy():
 		else:
 			print("Title element was not found")
 
-	for i, title_name in enumerate(titles): #NOTE: some titles just doesn't print at all (e.g. title 4)
+	for i, title_name in enumerate(titles):
 		print(f"Title {i+1}: {title_name}")
 	print(titles)
 
