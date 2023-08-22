@@ -105,7 +105,6 @@ def jiddo_legacy():
 				if not link.startswith('https'):
 					link = urllib.parse.urljoin("https://alrai.com", link)
 				titles_links.append((title, link))
-				# titles_links.append(title)
 			else:
 				print("End tag not found")
 		else:
