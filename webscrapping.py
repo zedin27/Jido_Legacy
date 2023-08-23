@@ -8,6 +8,8 @@ I will leave few resource links that I had to go through in my testing:
 from urllib.request import urlopen
 import urllib.parse
 from bs4 import BeautifulSoup
+from click_link_content import link_content
+import time
 import lxml
 
 #NOTE: How can I make a safe global variable for my URL to avoid any injection?
@@ -102,7 +104,7 @@ def jiddo_legacy():
 				link_start = content_title_article.find('href="') + len('href="')
 				link_end = content_title_article.find('"', link_start)
 				link = content_title_article[link_start:link_end].replace('\r', '')
-				if not link.startswith('https'):
+				if not link.startswith('http'):
 					link = urllib.parse.urljoin("https://alrai.com", link)
 				titles_links.append((title, link))
 			else:
@@ -112,6 +114,7 @@ def jiddo_legacy():
 
 	for i, (title_name, link) in enumerate(titles_links):
 		print(f"Title w/ URL {i+1}: {title_name} ({link})")
+		link_content(link)
 
 jiddo_legacy()
 # title()
