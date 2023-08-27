@@ -20,7 +20,7 @@ def paragraphs():
 	Return the paragraph list of the specified URL
 	NOTE: this is to test out. Step by step
 	'''
-	
+
 	content = html_content("https://alrai.com/article/10796676/%D9%83%D8%AA%D8%A7%D8%A8/%D9%84%D9%8A%D8%B3-%D9%87%D9%86%D8%A7%D9%83-%D9%85%D8%B4%D9%83%D9%84%D8%A9-%D9%81%D9%84%D8%B3%D8%B7%D9%8A%D9%86%D9%8A%D8%A9")
 	paragraphs = []
 	target_element_paragraph_article = '<div class="item-article-body size-20">'
@@ -118,9 +118,7 @@ def jiddo_legacy():
 	for i, (title_name, link) in enumerate(titles_links):
 		print(f"Title w/ URL {i+1}: {title_name} ({link})")
 		link_content(link)
-		# content_paragraphs(link)
-	
 
-print(content_paragraphs())
+print(paragraphs())
 # jiddo_legacy()
 # title()
