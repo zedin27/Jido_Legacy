@@ -7,14 +7,21 @@ RESOURCES:
 
 '''
 
-import urllib.request
+from urllib.request import urlopen
 from requests.utils import requote_uri
 from urllib.error import HTTPError, URLError
 
+def html_content(url):
+	response_page = urlopen(url)
+	html_bytes = response_page.read()
+	html_content = html_bytes.decode("utf-8")
+	return html_content
+
 def link_content(link):
 	try:
-		response = urllib.request.urlopen(requote_uri(link))
-		print("Visited link: ", response, "\n")
+		response = urlopen(requote_uri(link))
+		current_url = response.read().decode("utf-8")
+		print("current_url: ", current_url)
 	except HTTPError as e:
 		print("HTTP Error visiting link: ", link)
 		print(e)
