@@ -3,14 +3,11 @@ Little project to help and maintain my grandfather's legacy in journalism.
 I will leave few resource links that I had to go through in my testing:
 	Old project like Ford_hackathon for pip and virtual environment
 	Python documentation for urllib library
+	
 '''
 
-from urllib.request import urlopen
+from click_link_content import link_content, html_content
 import urllib.parse
-from bs4 import BeautifulSoup
-from click_link_content import link_content
-import time
-import lxml
 
 #NOTE: How can I make a safe global variable for my URL to avoid any injection?
 
@@ -18,31 +15,36 @@ def page_number(pg_number=None):
 	'''Return the current page number'''
 	return
 
-def html_content():
-	url = "https://alrai.com/author/19/%D8%AF-%D8%B2%D9%8A%D8%AF-%D8%AD%D9%85%D8%B2%D8%A9"
-	response_page = urlopen(url)
-	html_bytes = response_page.read()
-	html_content = html_bytes.decode("utf-8")
-	return html_content
+def paragraphs():
+	'''
+	Return the paragraph list of the specified URL
+	NOTE: this is to test out. Step by step
+	'''
+	
+	content = html_content("https://alrai.com/article/10796676/%D9%83%D8%AA%D8%A7%D8%A8/%D9%84%D9%8A%D8%B3-%D9%87%D9%86%D8%A7%D9%83-%D9%85%D8%B4%D9%83%D9%84%D8%A9-%D9%81%D9%84%D8%B3%D8%B7%D9%8A%D9%86%D9%8A%D8%A9")
+	paragraphs = []
+	target_element_paragraph_article = '<div class="item-article-body size-20">'
+	start_index = content.find(target_element_paragraph_article)
 
-def title(arr=None, idx=None):
-	'''Return index (idx) from the list of titles (arr)'''
-	url = "https://alrai.com/author/19/%D8%AF-%D8%B2%D9%8A%D8%AF-%D8%AD%D9%85%D8%B2%D8%A9"
-	content = html_content()
-	soup = BeautifulSoup(content, 'html.parser')
-	links = soup.find_all('a', class_='size-17 font-700')
-	print(links)
+	if start_index != -1:
+		start_index += len(target_element_paragraph_article)
+		content_paragraph = content[start_index:].strip()
+		paragraph_start = content_paragraph.find('<p>')
 
-	for link in links:
-		link_url = link.get('href')
-		if link_url:
-			if not link_url.startswith('http'):
-				link_url = urllib.parse.urljoin(url, link_url)
-				
-	return link_url
+		while paragraph_start != -1:
+			paragraph_end = content_paragraph.find('</p>', paragraph_start)
 
-def paragraph(idx=None): #NOTE: maybe have this in the same title function?
-	return
+			if paragraph_end != -1:
+				paragraph = content_paragraph[paragraph_start + len('<p>'):paragraph_end].strip()
+				paragraphs.append(paragraph)
+				paragraph_start = paragraph_end + len('</p>')
+			else:
+				print("Closing </p> tag not found")
+				break
+	else:
+		print("Paragraph element was not found")
+
+	return paragraphs
 
 def find(content, target, target2, beginning, end):
 	'''
@@ -75,6 +77,7 @@ def find(content, target, target2, beginning, end):
 			print("Title element was not found")
 	return titles_link
 
+
 def jiddo_legacy():
 	'''
 	Idea is to have each article title stored in an index with the text in it
@@ -82,7 +85,7 @@ def jiddo_legacy():
 	'''
 
 	# url = "https://alrai.com/author/19/د-زيد-حمزة" #NOTE: I need to test how to parse non-ASCII characters
-	content = html_content()
+	content = html_content("https://alrai.com/author/19/%D8%AF-%D8%B2%D9%8A%D8%AF-%D8%AD%D9%85%D8%B2%D8%A9")
 	titles_links = []
 	target_element_title_article = '<div class="title-article">'
 	start_index = 0
@@ -115,6 +118,9 @@ def jiddo_legacy():
 	for i, (title_name, link) in enumerate(titles_links):
 		print(f"Title w/ URL {i+1}: {title_name} ({link})")
 		link_content(link)
+		# content_paragraphs(link)
+	
 
-jiddo_legacy()
+print(content_paragraphs())
+# jiddo_legacy()
 # title()
