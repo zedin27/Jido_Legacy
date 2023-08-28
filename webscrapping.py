@@ -8,20 +8,32 @@ I will leave few resource links that I had to go through in my testing:
 
 from click_link_content import link_content, html_content
 import urllib.parse
+import time
+import re
+import html
 
 #NOTE: How can I make a safe global variable for my URL to avoid any injection?
 
-def page_number(pg_number=None):
+def pgno(url):
 	'''Return the current page number'''
-	return
+	separator = '?' if '?' not in url else '&'
+	pattern = r'(pgno=\d+)'
+	new_pg_number = 2
+	replace = f'pgno={new_pg_number}'
 
-def paragraphs():
+	if re.search(pattern, url):
+		new_url = re.sub(pattern, replace, url)
+	else:
+		new_url = f'{url}{separator}{replace}'
+	return new_url
+
+def paragraphs(url):
 	'''
 	Return the paragraph list of the specified URL
 	NOTE: this is to test out. Step by step
 	'''
 
-	content = html_content("https://alrai.com/article/10796676/%D9%83%D8%AA%D8%A7%D8%A8/%D9%84%D9%8A%D8%B3-%D9%87%D9%86%D8%A7%D9%83-%D9%85%D8%B4%D9%83%D9%84%D8%A9-%D9%81%D9%84%D8%B3%D8%B7%D9%8A%D9%86%D9%8A%D8%A9")
+	content = html_content(url)
 	paragraphs = []
 	target_element_paragraph_article = '<div class="item-article-body size-20">'
 	start_index = content.find(target_element_paragraph_article)
@@ -36,6 +48,8 @@ def paragraphs():
 
 			if paragraph_end != -1:
 				paragraph = content_paragraph[paragraph_start + len('<p>'):paragraph_end].strip()
+				# paragraph = html.unescape(paragraph)
+				# print(paragraph)
 				paragraphs.append(paragraph)
 				paragraph_start = paragraph_end + len('</p>')
 			else:
@@ -46,50 +60,18 @@ def paragraphs():
 
 	return paragraphs
 
-def find(content, target, target2, beginning, end):
-	'''
-	HTML content with two target values (one that starts with and other that ends), beginning and ending index for parsing
-	Need to work more on this portion of the code if it becomes unreadable
-	'''
-
-	content = html_content()
-	target = '<div class="title-article">'
-	target2 = '</div>'
-	beginning = 0
-	titles_link = []
-
-	while beginning != -1:
-		beginning = content.find(target, beginning)
-
-		if beginning != -1:
-			beginning += len(target)
-			end = content.find(target2, beginning)
-
-			if end != -1:
-				content_title_article = content[beginning:end].strip()
-				title_start = content_title_article.find('title="') + len('title="')
-				title_end = content_title_article.find('>"', title_start)
-				title_name = content_title_article[title_start:title_end].replace('\r', '')
-				titles_link.append(title_name)
-			else:
-				print("End tag not found")
-		else:
-			print("Title element was not found")
-	return titles_link
-
-
 def jiddo_legacy():
 	'''
 	Idea is to have each article title stored in an index with the text in it
 	(e.g. article[0] would have the title name and the content of the paragraph, article[1] next title, article[n + 1] for the rest)
 	'''
 
-	# url = "https://alrai.com/author/19/د-زيد-حمزة" #NOTE: I need to test how to parse non-ASCII characters
+	url = "https://alrai.com/author/19/%D8%AF-%D8%B2%D9%8A%D8%AF-%D8%AD%D9%85%D8%B2%D8%A9?pgno=1" #NOTE: I need to test how to parse non-ASCII characters
 	content = html_content("https://alrai.com/author/19/%D8%AF-%D8%B2%D9%8A%D8%AF-%D8%AD%D9%85%D8%B2%D8%A9")
 	titles_links = []
 	target_element_title_article = '<div class="title-article">'
 	start_index = 0
-	page_number = 0 # After reading the articles, go to the next page number (should be after 10 or less)
+	flag_processing = True
 	
 	while start_index != -1:
 		start_index = content.find(target_element_title_article, start_index)
@@ -113,12 +95,17 @@ def jiddo_legacy():
 			else:
 				print("End tag not found")
 		else:
-			print("Title element was not found")
+			flag_processing = False
 
 	for i, (title_name, link) in enumerate(titles_links):
 		print(f"Title w/ URL {i+1}: {title_name} ({link})")
-		link_content(link)
+		print("Paragraphs:")
+		paragraph_list = paragraphs(link)
+		for j, paragraph in enumerate(paragraph_list):
+			print(f"Paragraph {j + 1}: {paragraph}")
+		print("I O " * 42)
+	
+	next_page_url = pgno(url)
+	print("Next page: ", next_page_url)
 
-print(paragraphs())
-# jiddo_legacy()
-# title()
+jiddo_legacy()
