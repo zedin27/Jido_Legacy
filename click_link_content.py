@@ -12,7 +12,7 @@ from requests.utils import requote_uri
 from urllib.error import HTTPError, URLError
 
 def html_content(url):
-	response_page = urlopen(url)
+	response_page = urlopen(requote_uri(url))
 	html_bytes = response_page.read()
 	html_content = html_bytes.decode("utf-8")
 	return html_content
