@@ -1,16 +1,15 @@
 '''
 Little project to help and maintain my grandfather's legacy in journalism.
 I will leave few resource links that I had to go through in my testing:
-	Old project like Ford_hackathon for pip and virtual environment
+	Old project like Ford_hackathon for pip3 and virtual environment (venv)
 	Python documentation for urllib library
+	Regex documentation w/ chatGPT to avoid hassle
 	
 '''
 
-from click_link_content import link_content, html_content
+from click_link_content import html_content
 import urllib.parse
-import time
 import re
-import html
 
 #NOTE: How can I make a safe global variable for my URL to avoid any injection?
 
@@ -48,8 +47,6 @@ def paragraphs(url):
 
 			if paragraph_end != -1:
 				paragraph = content_paragraph[paragraph_start + len('<p>'):paragraph_end].strip()
-				# paragraph = html.unescape(paragraph)
-				# print(paragraph)
 				paragraphs.append(paragraph)
 				paragraph_start = paragraph_end + len('</p>')
 			else:
