@@ -63,8 +63,8 @@ def jiddo_legacy():
 	(e.g. article[0] would have the title name and the content of the paragraph, article[1] next title, article[n + 1] for the rest)
 	'''
 
-	url = "https://alrai.com/author/19/%D8%AF-%D8%B2%D9%8A%D8%AF-%D8%AD%D9%85%D8%B2%D8%A9?pgno=1" #NOTE: I need to test how to parse non-ASCII characters
-	content = html_content("https://alrai.com/author/19/%D8%AF-%D8%B2%D9%8A%D8%AF-%D8%AD%D9%85%D8%B2%D8%A9")
+	url = "https://alrai.com/author/19/د-زيد-حمزة?pgno=1" #NOTE: I need to test how to parse non-ASCII characters
+	content = html_content("https://alrai.com/author/19/د-زيد-حمزة")
 	titles_links = []
 	target_element_title_article = '<div class="title-article">'
 	start_index = 0
