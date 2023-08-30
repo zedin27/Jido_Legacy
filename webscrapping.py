@@ -12,16 +12,18 @@ import urllib.parse
 import re
 
 #NOTE: How can I make a safe global variable for my URL to avoid any injection?
-
+increment = 1
 def pgno(url):
 	'''Return the current page number'''
+	
+	global increment
 	separator = '?' if '?' not in url else '&'
 	pattern = r'(pgno=\d+)'
-	new_pg_number = 2
-	replace = f'pgno={new_pg_number}'
+	replace = f'pgno={increment}'
 
 	if re.search(pattern, url):
 		new_url = re.sub(pattern, replace, url)
+		increment += 1
 	else:
 		new_url = f'{url}{separator}{replace}'
 	return new_url
@@ -63,46 +65,53 @@ def jiddo_legacy():
 	(e.g. article[0] would have the title name and the content of the paragraph, article[1] next title, article[n + 1] for the rest)
 	'''
 
-	url = "https://alrai.com/author/19/د-زيد-حمزة?pgno=1"
-	content = html_content("https://alrai.com/author/19/د-زيد-حمزة")
+	url = "https://alrai.com/author/19/د-زيد-حمزة"
+	starting_content = html_content("https://alrai.com/author/19/د-زيد-حمزة")
 	titles_links = []
 	target_element_title_article = '<div class="title-article">'
 	start_index = 0
-	flag_processing = True
-	
-	while start_index != -1:
-		start_index = content.find(target_element_title_article, start_index)
-		
-		if start_index != -1:
-			start_index += len(target_element_title_article)
-			end_index = content.find('</div>', start_index)
 
-			if end_index != -1:
-				content_title_article = content[start_index:end_index].strip()
-				title_start = content_title_article.find('title="') + len('title="')
-				title_end = content_title_article.find('">', title_start)
-				title = content_title_article[title_start:title_end].replace('\r', '')
+	while True:
+		start_index = 0
+		starting_content = html_content(url)
+		while start_index != -1:
+			start_index = starting_content.find(target_element_title_article, start_index)
+			
+			if start_index != -1:
+				start_index += len(target_element_title_article)
+				end_index = starting_content.find('</div>', start_index)
 
-				link_start = content_title_article.find('href="') + len('href="')
-				link_end = content_title_article.find('"', link_start)
-				link = content_title_article[link_start:link_end].replace('\r', '')
-				if not link.startswith('http'):
-					link = urllib.parse.urljoin("https://alrai.com", link)
-				titles_links.append((title, link))
+				if end_index != -1:
+					content_title_article = starting_content[start_index:end_index].strip()
+					title_start = content_title_article.find('title="') + len('title="')
+					title_end = content_title_article.find('">', title_start)
+					title = content_title_article[title_start:title_end].replace('\r', '')
+
+					link_start = content_title_article.find('href="') + len('href="')
+					link_end = content_title_article.find('"', link_start)
+					link = content_title_article[link_start:link_end].replace('\r', '')
+					if not link.startswith('http'):
+						link = urllib.parse.urljoin("https://alrai.com", link)
+					titles_links.append((title, link))
+				else:
+					print("End tag not found")
 			else:
-				print("End tag not found")
-		else:
-			flag_processing = False
+				starting_content = pgno(url)
+				# flag_processing = False
+				# next_page_url = pgno(url)
 
-	for i, (title_name, link) in enumerate(titles_links):
-		print(f"Title w/ URL {i+1}: {title_name} ({link})")
-		print("Paragraphs:")
-		paragraph_list = paragraphs(link)
-		for j, paragraph in enumerate(paragraph_list):
-			print(f"Paragraph {j + 1}: {paragraph}")
-		print("I O " * 42)
-	
-	next_page_url = pgno(url)
-	print("Next page: ", next_page_url)
+		for i, (title_name, link) in enumerate(titles_links):
+			print(f"Title w/ URL {i+1}: {title_name} ({link})")
+			print("Paragraphs:")
+			paragraph_list = paragraphs(link)
+			for j, paragraph in enumerate(paragraph_list):
+				print(f"Paragraph {j + 1}: {paragraph}")
+			print("I O " * 42)
+		
+		url = pgno(url)
+		print("Next page: ", url)
+		# print("increment static var:", python_has_no_static_lol.increment_static_var())
+		print("Increment: ", increment)
+		print("_" * 42)
 
 jiddo_legacy()
