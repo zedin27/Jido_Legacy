@@ -31,7 +31,9 @@ def pgno(url):
 def paragraphs(url):
 	'''
 	Return the paragraph list of the specified URL
-	NOTE: this is to test out. Step by step
+	NOTE: this is to test out. Step by step. Need it to work for paragraphs
+			that has <font> on it, and doesn't break in the parse
+			flags for <font> and <p>?
 	'''
 
 	content = html_content(url)
@@ -59,21 +61,27 @@ def paragraphs(url):
 
 	return paragraphs
 
+def title_chunk_generator(titles_links):
+	for i in range(0, len(titles_links), 10):
+		yield titles_links[i:i + 10]
+
+
 def jiddo_legacy():
 	'''
 	Idea is to have each article title stored in an index with the text in it
 	(e.g. article[0] would have the title name and the content of the paragraph, article[1] next title, article[n + 1] for the rest)
 	'''
 
-	url = "https://alrai.com/author/19/د-زيد-حمزة"
-	starting_content = html_content("https://alrai.com/author/19/د-زيد-حمزة")
-	titles_links = []
-	target_element_title_article = '<div class="title-article">'
-	start_index = 0
+	url = "https://alrai.com/author/19/د-زيد-حمزة?pgno=1"
+	title_hashmap = {}
 
 	while True:
+		starting_content = html_content("https://alrai.com/author/19/د-زيد-حمزة")
+		titles_links = []
+		target_element_title_article = '<div class="title-article">'
 		start_index = 0
 		starting_content = html_content(url)
+
 		while start_index != -1:
 			start_index = starting_content.find(target_element_title_article, start_index)
 			
@@ -97,21 +105,22 @@ def jiddo_legacy():
 					print("End tag not found")
 			else:
 				starting_content = pgno(url)
-				# flag_processing = False
-				# next_page_url = pgno(url)
+		if not titles_links:
+			print("No more titles")
+			break
 
-		for i, (title_name, link) in enumerate(titles_links):
-			print(f"Title w/ URL {i+1}: {title_name} ({link})")
-			print("Paragraphs:")
-			paragraph_list = paragraphs(link)
-			for j, paragraph in enumerate(paragraph_list):
-				print(f"Paragraph {j + 1}: {paragraph}")
-			print("I O " * 42)
-		
+		chunk_generator = title_chunk_generator(titles_links)
+		for title_chunk in chunk_generator:
+			for i, (title_name, link) in enumerate(title_chunk):
+				if title_name in title_hashmap:
+					print(f"Skipping title: {title_name}")
+					continue
+				title_hashmap[title_name] = link
+				print(f"Title w/ URL {i+1}: {title_name} ({link})")
+				paragraph_list = paragraphs(link)
+				for j, paragraph in enumerate(paragraph_list):
+					print(f"Paragraph {j + 1}: {paragraph}")
+				print("I O " * 42)
 		url = pgno(url)
-		print("Next page: ", url)
-		# print("increment static var:", python_has_no_static_lol.increment_static_var())
-		print("Increment: ", increment)
-		print("_" * 42)
 
 jiddo_legacy()
