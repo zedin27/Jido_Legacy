@@ -2,6 +2,14 @@
 
 This project demonstrates web scraping techniques to extract article titles, links, and paragraphs from a website. The code is implemented in Python and uses various modules and libraries for web scraping.
 
+## TODO-list
+
+- [ ] Store information to a file
+- [ ] Dates that the article was posted from the site
+- [ ] BONUS: Copy of the articles WRITTEN version (from his actual writing, and even the old ones to add it)
+- [ ] BONUS: Translation to the articles
+- [ ] React w/ Python?
+
 ## Story
 
 This project is dedicated to my grandfather, Dr. Zaid Hamzeh. He writes passionately about the problems we are surrounded in the world, and how blinded we can be in our own bubble. His courage and thinking has been touched to me and dearing to understand myself and others, both of which are strengths and reinforcements of our weaknessess.
@@ -9,6 +17,7 @@ This project is dedicated to my grandfather, Dr. Zaid Hamzeh. He writes passiona
 As I admire him much and he someone I love and adore, I wanted to keep up his work and save it somewhere in the future and share it with others who are into the _lore_.
 
 ## Features
+
 - Modify non-ascii URL to satisfies link content of the site
 - Parses multiple `<div>`, `<a href>`, `<p>` to extrapolate necessary information as needed
 - Extracted data will be a console output, and it can be further manipulated if needed
@@ -22,6 +31,7 @@ As I admire him much and he someone I love and adore, I wanted to keep up his wo
 - pip3
 
 ## Usage
+
 Useful notes: If you see some text with `<...>` in it, means you can add whatever it is required to fill in.
 
 - Open your terminal
