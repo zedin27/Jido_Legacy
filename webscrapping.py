@@ -6,13 +6,14 @@ I will leave few resource links that I had to go through in my testing:
 	Regex documentation w/ chatGPT to avoid hassle
 	Joe lole: https://stackoverflow.com/questions/328356/extracting-text-from-html-file-using-python
 		-->		cfscrape() suggestion
-	Removing the pesky <font> and make it as a paragraph: https://stackoverflow.com/questions/77034768/web-scrape-multiple-paragraphs-in-an-arabic-website-that-has-p-and-font-html
-	Time to finish program (as for 9/4/2023):
-		python3 webscrapping.py  5.86s user 0.63s system 3% cpu 3:24.91 total
-		python3 webscrapping.py  4.74s user 0.65s system 3% cpu 2:55.27 total (not working, so it is just not parsing the paragraphs)
+
+	python3 webscrapping.py  5.86s user 0.63s system 3% cpu 3:24.91 total
+	python3 webscrapping.py  4.74s user 0.65s system 3% cpu 2:55.27 total (not working, so it is just not parsing the paragraphs)
+	python3 webscrapping.py  4.81s user 0.67s system 5% cpu 1:44.42 total (this is with the if staments looking for <p> and <font> first)
+	
 '''
 
-from click_link_content import html_content
+from click_link_content import html_content, extract_paragraphs_p, extract_paragraphs_text, remove_html_tags, title_chunk_generator
 import urllib.parse
 import re
 
@@ -34,10 +35,11 @@ def pgno(url):
 	return new_url
 
 def paragraphs(url):
-	'''Return the paragraph list of the specified URL'''
+	'''
+	Return the paragraph list of the specified URL, checking for both <p> and <font> tags.
+	'''
 
 	content = html_content(url)
-	paragraphs = []
 	start_tag = '<div class="item-article-body size-20">'
 	end_tag = '</div>\n</div>\n</div>'
 	start_index = content.find(start_tag)
@@ -45,26 +47,21 @@ def paragraphs(url):
 
 	if start_index != -1 and end_index != -1:
 		extracted_text = content[start_index + len(start_tag):end_index]
-		temp = extracted_text.split('<br>')
-		for data in temp:
-			paragraph = remove_html_tags(data).strip()
-			if paragraph:
-				paragraphs.append(paragraph)
-		return paragraphs
+		p_paragraphs = extract_paragraphs_p(extracted_text, '<p>', '</p>')
+		if not p_paragraphs:
+			text_paragraphs = extract_paragraphs_text(extracted_text)
+			return text_paragraphs
+		return p_paragraphs
 	else:
 		print("Article not found ")
 		return []
 
-def remove_html_tags(text):
-	clean = re.compile('<.*?>')
-	return re.sub(clean, '', text)
-
-def title_chunk_generator(titles_links):
-	for i in range(0, len(titles_links), 10):
-		yield titles_links[i:i + 10]
-
-
 def jiddo_legacy():
+	'''
+	Idea is to have each article title stored in an index with the text in it
+	(e.g. article[0] would have the title name and the content of the paragraph, article[1] next title, article[n + 1] for the rest)
+	'''
+
 	url = "https://alrai.com/author/19/د-زيد-حمزة?pgno=1"
 	title_hashmap = {}
 
@@ -115,6 +112,6 @@ def jiddo_legacy():
 					print(f"Paragraph {j + 1}: {paragraph}")
 				print("I O " * 42)
 		url = pgno(url)
-		print(f"Going to the next page number: {url}")
 
 jiddo_legacy()
+# print(paragraphs("https://alrai.com/article/1009645/%D9%83%D8%AA%D8%A7%D8%A8/%D8%AE%D9%88%D8%A7%D8%B7%D8%B1-%D9%85%D8%B3%D8%A7%D9%81%D8%B1-%D8%B9%D9%84%D9%89-%D9%88%D8%B4%D9%83-%D8%A7%D9%84%D8%B9%D9%88%D8%AF%D8%A9-"))
