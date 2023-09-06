@@ -10,10 +10,12 @@ I will leave few resource links that I had to go through in my testing:
 	python3 webscrapping.py  5.86s user 0.63s system 3% cpu 3:24.91 total
 	python3 webscrapping.py  4.74s user 0.65s system 3% cpu 2:55.27 total (not working, so it is just not parsing the paragraphs)
 	python3 webscrapping.py  4.81s user 0.67s system 5% cpu 1:44.42 total (this is with the if staments looking for <p> and <font> first)
+	python3 webscrapping.py  4.99s user 0.50s system 8% cpu 1:05.83 total (there is a time variation. I would say worst is 2:10mins)
 	
 '''
 
-from click_link_content import html_content, extract_paragraphs_p, extract_paragraphs_text, remove_html_tags, title_chunk_generator
+from aux_functions import html_content, extract_paragraphs_p, extract_paragraphs_text, title_chunk_generator
+
 import urllib.parse
 import re
 
@@ -35,9 +37,7 @@ def pgno(url):
 	return new_url
 
 def paragraphs(url):
-	'''
-	Return the paragraph list of the specified URL, checking for both <p> and <font> tags.
-	'''
+	'''Return the paragraph list of the specified URL, checking for both <p> and <font> tags.'''
 
 	content = html_content(url)
 	start_tag = '<div class="item-article-body size-20">'
@@ -56,7 +56,7 @@ def paragraphs(url):
 		print("Article not found ")
 		return []
 
-def jiddo_legacy():
+def jiddo_legacy(output_file):
 	'''
 	Idea is to have each article title stored in an index with the text in it
 	(e.g. article[0] would have the title name and the content of the paragraph, article[1] next title, article[n + 1] for the rest)
@@ -64,54 +64,61 @@ def jiddo_legacy():
 
 	url = "https://alrai.com/author/19/د-زيد-حمزة?pgno=1"
 	title_hashmap = {}
+	title_counter = 1
 
-	while True:
-		starting_content = html_content("https://alrai.com/author/19/د-زيد-حمزة")
-		titles_links = []
-		target_element_title_article = '<div class="title-article">'
-		start_index = 0
-		starting_content = html_content(url)
+	with open(output_file, "w", encoding="utf-8") as file:
+		while True:
+			starting_content = html_content("https://alrai.com/author/19/د-زيد-حمزة")
+			titles_links = []
+			target_element_title_article = '<div class="title-article">'
+			start_index = 0
+			starting_content = html_content(url)
 
-		while start_index != -1:
-			start_index = starting_content.find(target_element_title_article, start_index)
-			
-			if start_index != -1:
-				start_index += len(target_element_title_article)
-				end_index = starting_content.find('</div>', start_index)
+			while start_index != -1:
+				start_index = starting_content.find(target_element_title_article, start_index)
+				
+				if start_index != -1:
+					start_index += len(target_element_title_article)
+					end_index = starting_content.find('</div>', start_index)
 
-				if end_index != -1:
-					content_title_article = starting_content[start_index:end_index].strip()
-					title_start = content_title_article.find('title="') + len('title="')
-					title_end = content_title_article.find('">', title_start)
-					title = content_title_article[title_start:title_end].replace('\r', '')
+					if end_index != -1:
+						content_title_article = starting_content[start_index:end_index].strip()
+						title_start = content_title_article.find('title="') + len('title="')
+						title_end = content_title_article.find('">', title_start)
+						title = content_title_article[title_start:title_end].replace('\r', '')
 
-					link_start = content_title_article.find('href="') + len('href="')
-					link_end = content_title_article.find('"', link_start)
-					link = content_title_article[link_start:link_end].replace('\r', '')
-					if not link.startswith('http'):
-						link = urllib.parse.urljoin("https://alrai.com", link)
-					titles_links.append((title, link))
+						link_start = content_title_article.find('href="') + len('href="')
+						link_end = content_title_article.find('"', link_start)
+						link = content_title_article[link_start:link_end].replace('\r', '')
+						if not link.startswith('http'):
+							link = urllib.parse.urljoin("https://alrai.com", link)
+						titles_links.append((title, link))
+					else:
+						print("End tag not found")
 				else:
-					print("End tag not found")
-			else:
-				starting_content = pgno(url)
-		if not titles_links:
-			print("No more titles")
-			break
+					starting_content = pgno(url)
+			if not titles_links:
+				print("No more titles")
+				break
 
-		chunk_generator = title_chunk_generator(titles_links)
-		for title_chunk in chunk_generator:
-			for i, (title_name, link) in enumerate(title_chunk):
-				if title_name in title_hashmap:
-					print(f"Skipping title: {title_name}")
-					continue
-				title_hashmap[title_name] = link
-				print(f"Title w/ URL {i+1}: {title_name} ({link})")
-				paragraph_list = paragraphs(link)
-				for j, paragraph in enumerate(paragraph_list):
-					print(f"Paragraph {j + 1}: {paragraph}")
-				print("I O " * 42)
-		url = pgno(url)
+			chunk_generator = title_chunk_generator(titles_links)
+			for title_chunk in chunk_generator:
+				for i, (title_name, link) in enumerate(title_chunk):
+					if title_name in title_hashmap:
+						print(f"Skipping title: {title_name}")
+						continue
+					title_hashmap[title_name] = link
+					print(f"Title w/ URL {i + 1}: {title_name} ({link})")
+					file.write(f"Title {title_counter}: {title_name}\n")
+					title_counter += 1
+					paragraph_list = paragraphs(link)
+					for j, paragraph in enumerate(paragraph_list):
+						print(f"Paragraph {j + 1}: {paragraph}")
+						file.write(f"Paragraph {j + 1}: {paragraph}\n")
+						if j == len(paragraph_list) - 1:
+							file.write("\n")
+					print("I O " * 42)
+			url = pgno(url)
+	file.close()
 
-jiddo_legacy()
-# print(paragraphs("https://alrai.com/article/1009645/%D9%83%D8%AA%D8%A7%D8%A8/%D8%AE%D9%88%D8%A7%D8%B7%D8%B1-%D9%85%D8%B3%D8%A7%D9%81%D8%B1-%D8%B9%D9%84%D9%89-%D9%88%D8%B4%D9%83-%D8%A7%D9%84%D8%B9%D9%88%D8%AF%D8%A9-"))
+jiddo_legacy("file")
