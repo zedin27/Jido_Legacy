@@ -4,11 +4,11 @@ This project demonstrates web scraping techniques to extract article titles, lin
 
 ## TODO-list
 
-- [ ] Store information to a file
+- [x] Store information to a file
 - [ ] Dates that the article was posted from the site
 - [ ] BONUS: Copy of the articles WRITTEN version (from his actual writing, and even the old ones to add it)
-- [ ] BONUS: Translation to the articles
-- [ ] React w/ Python?
+- [ ] BONUS: Translation to the articles for English (then expand to other languages if popularity takes in)
+- [ ] BONUS: React w/ Python?
 
 ## Story
 
@@ -19,7 +19,7 @@ As I admire him much and he someone I love and adore, I wanted to keep up his wo
 ## Features
 
 - Modify non-ascii URL to satisfies link content of the site
-- Parses multiple `<div>`, `<a href>`, `<p>` to extrapolate necessary information as needed
+- Parses multiple `<div>`, `<a href>`, `<p>`, and regular HTML text to extrapolate necessary information as needed
 - Extracted data will be a console output, and it can be further manipulated if needed
 
 ## Prerequisite
