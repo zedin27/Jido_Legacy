@@ -1,5 +1,9 @@
 '''
 Aux functions
+RESOURCES:
+	https://stackoverflow.com/questions/489999/convert-list-of-ints-to-one-number
+	Encoding problem: https://stackoverflow.com/questions/9942594/unicodeencodeerror-ascii-codec-cant-encode-character-u-xa0-in-position-20
+	URI encode: https://stackoverflow.com/a/54135995/6017248
 '''
 
 from urllib.request import urlopen
