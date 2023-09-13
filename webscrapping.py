@@ -36,12 +36,13 @@ def pgno(url):
 		new_url = f'{url}{separator}{replace}'
 	return new_url
 
+
 def paragraphs(url):
 	'''Return the paragraph list of the specified URL, checking for both <p> and <font> tags.'''
 
 	content = html_content(url)
 	start_tag = '<div class="item-article-body size-20">'
-	end_tag = '</div>\n</div>\n</div>'
+	end_tag = '</div>\n</div>\n</div>\n</div>'
 	start_index = content.find(start_tag)
 	end_index = content.find(end_tag, start_index)
 
@@ -55,6 +56,25 @@ def paragraphs(url):
 	else:
 		print("Article not found ")
 		return []
+
+def publication_date(url):
+	'''Return the publication date of the article'''
+	content = html_content(url)
+	date = ""
+	start_tag = '<span class="size-16 mr-l15">'
+	end_tag = '</span>'
+	start_index = content.find(start_tag)
+	
+	if start_index != -1:
+		end_index = content.find(end_tag, start_index)
+		if end_index != -1:
+			date = content[start_index + len(start_tag):end_index]
+			date_match = re.search(r'(\d{1,2}:\d{1,2}) (\d{4}-\d{1,2}-\d{1,2})', date)
+			if date_match:
+				time_part = date_match.group(1).strip()
+				date_part = date_match.group(2).strip()
+				return f'{date_part} {time_part}'
+	return date
 
 def jiddo_legacy(output_file):
 	'''
@@ -109,6 +129,8 @@ def jiddo_legacy(output_file):
 						continue
 					title_hashmap[title_name] = link
 					print(f"Title w/ URL {i + 1}: {title_name} ({link})")
+					publication_date_str = publication_date(link)
+					print(f"Date published and time: {publication_date_str}")
 					file.write(f"Title {title_counter}: {title_name}\n")
 					title_counter += 1
 					paragraph_list = paragraphs(link)
