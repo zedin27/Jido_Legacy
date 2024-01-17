@@ -5,6 +5,7 @@ This project demonstrates web scraping techniques to extract article titles, lin
 ## TODO-list
 
 - [x] Store information to a file
+- [ ] BUG: Parsed information of script doing wickidy weird things
 - [ ] Dates that the article was posted from the site
 - [ ] BONUS: Copy of the articles WRITTEN version (from his actual writing, and even the old ones to add it)
 - [ ] BONUS: Translation to the articles for English (then expand to other languages if popularity takes in)
