@@ -33,6 +33,7 @@ As I admire him much and he someone I love and adore, I wanted to keep up his wo
 
 ## Usage
 
+**Note**: This assumes that you have `virtualenv` installed.
 Useful notes: If you see some text with `<...>` in it, means you can add whatever it is required to fill in.
 
 - Open your terminal
